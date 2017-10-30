@@ -1,1 +1,9 @@
-font-family: 'Roboto Slab', serif;
+/* background-color for understanding bootstrap grid and div loyaut distribution */
+.gridfill{
+  background-color: rgba(0,100,255,0.1);
+}
+
+
+.customfont{
+  font-family: 'Roboto Slab', serif;
+}
