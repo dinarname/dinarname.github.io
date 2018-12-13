@@ -42,10 +42,10 @@ class Bground {
   int x, y, grassSpeed;
 
   Bground() {
-    city = loadImage("sprites/background-day.png");
+    city = loadImage("background-day.png");
     city.resize(width, 0);
 
-    grass[0] = grass[1] = loadImage("sprites/base.png");
+    grass[0] = grass[1] = loadImage("base.png");
     grass[0].resize(width, 0);
     grass[1].resize(width, 0);
 
@@ -100,9 +100,9 @@ class Bird {
 
 
   Bird() {
-    flap[0] = loadImage("sprites/bluebird-downflap.png");
-    flap[1] = loadImage("sprites/bluebird-midflap.png");
-    flap[2] = loadImage("sprites/bluebird-upflap.png");
+    flap[0] = loadImage("bluebird-downflap.png");
+    flap[1] = loadImage("bluebird-midflap.png");
+    flap[2] = loadImage("bluebird-upflap.png");
 
     // sprite width & height
     w = flap[0].width;
@@ -176,7 +176,7 @@ class Bird {
 void gameOver() {
   PImage end;
   float x, y;
-  end = loadImage("sprites/gameover.png");
+  end = loadImage("gameover.png");
   x = width / 2;
   y = height /2;
 
@@ -220,8 +220,8 @@ class Pipe {
   int bottomBorder;
 
   Pipe(int btBrdr, float pipeSpace) {
-    pipeUp = loadImage("sprites/pipe-green.png");
-    pipeDown = loadImage("sprites/pipe-green.png");
+    pipeUp = loadImage("pipe-green.png");
+    pipeDown = loadImage("pipe-green.png");
     
     pipeWidth = pipeUp.width;
     pipeUp.resize(pipeWidth, height);
