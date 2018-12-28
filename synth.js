@@ -1,10 +1,15 @@
 let w, h;
 let keyboard = [];
 let c = [
-  ['#ffa99a','#f9b0a3','#f4b7ac','#edbeb5','#e6c4be','#decbc7','#d6d1d0','#cdd7d9','#c2dee3','#b7e4ec','#a9eaf6','#9af0ff'],
-  ['#20807a','#3b7972','#4b726a','#566a62','#60635a','#675b52','#6d534b','#724b43','#77423c','#7a3835','#7d2d2e','#802027'],
-  ['#00c2b5','#54b6a5','#71aa95','#859e85','#949175','#a08466','#a97657','#b16848','#b7583a','#bb462b','#bf301d','#c2000d'],
+  ['#fff366','#f9dd6e','#f6c773','#f6b076','#f89876','#fc7f74','#f77586','#e37fab','#cc8ac9','#b095e1','#8fa0f3','#65abff'],
+  ['#f1efba','#f0e2a9','#f0d49a','#f2c68d','#f6b881','#fca977','#fb9d7b','#f49490','#ed8aa7','#e57fc1','#da74de','#cc67ff'],
+  ['#a0f1ba','#beeaaa','#d5e09b','#e7d38d','#f3c281','#fcad77','#f99488','#e983ad','#d57fcb','#bb87e2','#9a99f4','#67b3ff'],
 ];
+
+//https://gka.github.io/palettes/
+//#FFF366, #E8B67C, #FF7072, #BB89E8, #65ABFF
+//F1EFBA, E8CB8B, FFA172, E88BA1, CC67FF
+//A0F1BA, EBE28B, FFA172, CC4BE8, 67B3FF
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -30,13 +35,15 @@ function windowResized() {
 
 function createKeyboard() {
   noStroke();
-  stroke(255);
+  // stroke(255);
   let x = 0;
   let y = 0;
+  let n = 28;
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 12; j++) {
-      let note = random(30, 600);
+      let note = Math.pow(2, (n - 49) / 12) * 440;
       keyboard.push(new pad(x, y, c[i][j], note));
+      n++;
       x += w;
     }
     x = 0;
@@ -67,7 +74,7 @@ function pad(x, y, c, note) {
     }
 
     if (this.toggle && (this.volume == 0)) {
-      this.volume = 1;
+      this.volume = 0.2;
     } else if (!this.toggle) {
       this.volume = 0;
     }
@@ -84,7 +91,7 @@ function pad(x, y, c, note) {
 
   this.createOsc = function() {
     this.wave = new p5.Oscillator();
-    this.wave.setType('sine');
+    this.wave.setType('sawtooth');
     this.wave.freq(this.note);
     this.wave.amp(0);
     this.wave.start();
