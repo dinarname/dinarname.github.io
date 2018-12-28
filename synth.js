@@ -14,7 +14,6 @@ function setup() {
   createKeyboard();
 }
 
-
 function draw() {
   background(255);
   for (let i = 0; i < keyboard.length; i++) {
@@ -36,7 +35,8 @@ function createKeyboard() {
   let y = 0;
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 12; j++) {
-      keyboard.push(new pad(x, y, c[i][j]));
+      let note = random(30, 600);
+      keyboard.push(new pad(x, y, c[i][j], note));
       x += w;
     }
     x = 0;
@@ -44,17 +44,34 @@ function createKeyboard() {
   }
 }
 
-function pad(x, y, c) {
+function pad(x, y, c, note) {
   this.x = x;
   this.y = y;
   this.c = color(c);
-  this.active = false;
+  this.toggle = false;
+  this.note = note;
+  this.wave;
+  this.volume = 0;
+  this.crated = false;
 
   this.display = function() {
-    if (this.isCovered()) {
+    if (this.isCovered() || this.toggle) {
       fill(c);
-    } else fill(255);
+    } else {
+      fill(255);
+    }
     rect(this.x, this.y, w, h);
+
+    if (!this.created) {
+      this.createOsc();
+    }
+
+    if (this.toggle && (this.volume == 0)) {
+      this.volume = 1;
+    } else if (!this.toggle) {
+      this.volume = 0;
+    }
+    this.wave.amp(this.volume, 0.05);
   };
 
   this.isCovered = function() {
@@ -65,4 +82,30 @@ function pad(x, y, c) {
     } else return false;
   };
 
+  this.createOsc = function() {
+    this.wave = new p5.Oscillator();
+    this.wave.setType('sine');
+    this.wave.freq(this.note);
+    this.wave.amp(0);
+    this.wave.start();
+    this.created = true;
+  };
+
+}
+
+function mouseClicked() {
+  for (let i = 0; i < keyboard.length; i ++) {
+    if(keyboard[i].isCovered() && !keyboard[i].toggle) {
+      keyboard[i].toggle = true;
+      break;
+    }
+    if(keyboard[i].isCovered() && keyboard[i].toggle) {
+      keyboard[i].toggle = false;
+      break;
+    }
+  }
+}
+
+function touchStarted() {
+  getAudioContext().resume();
 }
