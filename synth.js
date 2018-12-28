@@ -38,7 +38,7 @@ function createKeyboard() {
   // stroke(255);
   let x = 0;
   let y = 0;
-  let n = 28;
+  let n = 16;
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 12; j++) {
       let note = Math.pow(2, (n - 49) / 12) * 440;
