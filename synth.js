@@ -68,6 +68,8 @@ function pad(x, y, c, note) {
       fill(255);
     }
 
+
+
     if (this.toggle) fill(colorAlpha(c, 1));
 
     rect(this.x, this.y, w, h);
