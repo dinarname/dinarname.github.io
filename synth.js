@@ -54,7 +54,7 @@ function createKeyboard() {
 function pad(x, y, c, note) {
   this.x = x;
   this.y = y;
-  this.c = color(c);
+  this.c = c;
   this.toggle = false;
   this.note = note;
   this.wave;
@@ -62,11 +62,14 @@ function pad(x, y, c, note) {
   this.crated = false;
 
   this.display = function() {
-    if (this.isCovered() || this.toggle) {
-      fill(c);
+    if (this.isCovered()) {
+      fill(colorAlpha(c, 0.3));
     } else {
       fill(255);
     }
+
+    if (this.toggle) fill(colorAlpha(c, 1));
+
     rect(this.x, this.y, w, h);
 
     if (!this.created) {
@@ -115,4 +118,9 @@ function mouseClicked() {
 
 function touchStarted() {
   getAudioContext().resume();
+}
+
+function colorAlpha(aColor, alpha) {
+  var c = color(aColor);
+  return color('rgba(' +  [red(c), green(c), blue(c), alpha].join(',') + ')');
 }
