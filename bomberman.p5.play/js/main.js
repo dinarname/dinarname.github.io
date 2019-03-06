@@ -1,72 +1,129 @@
-let greenField;
-let wall;
-let bomberman;
-let enemy;
-let enemies;
-
-let stoneImg, grassImg;
-let bombermanImg = [];
-let w;
-
+/*----------------------- Переменне для загрузки изображений ----------------*/
+let stoneImg, grassImg, brickImg;
+let bombermanImg = {
+  back: 0,
+  front: 0,
+  left: 0,
+  right: 0,
+};
 let enemyImg = {
   back: 0,
   front: 0,
   left: 0,
   right: 0,
-}
+};
+/*----------------------------------------------------------------------------*/
 
 
+/*----------------------------- Спрайты и группы -----------------------------*/
+let greenField;
+let wall;
+let bricks;
+let enemies;
+
+let bomberman;
+/*----------------------------------------------------------------------------*/
+
+
+/*----------------------------- Переменные объектов и групп ------------------*/
+let rows = 13;
+let cols = 17;
+let w;
+/*----------------------------------------------------------------------------*/
+
+
+/*------------------------- Загружаем картинки -------------------------------*/
 function preload() {
+  // Изобрадения для создания игрового поля
   grassImg = loadImage("sprites/Blocks/BackgroundTile.png");
   stoneImg = loadImage("sprites/Blocks/SolidBlock.png");
+  brickImg = loadImage("sprites/Blocks/ExplodableBlock.png");
 
-  // Переделать загрузку спрайтов для бомбермена в таком же формате как и для врага
-  bombermanImg[0] = loadImage("sprites/Bomberman/Back/Bman_B_f00.png");
-  bombermanImg[1] = loadImage("sprites/Bomberman/Front/Bman_F_f00.png");
-  bombermanImg[2] = loadImage("sprites/Bomberman/Left/Bman_L_f00.png");
-  bombermanImg[3] = loadImage("sprites/Bomberman/Right/Bman_R_f00.png");
-  ////////////
+  // Изображения для анимации бомбермена
+  bombermanImg.back = loadAnimation("sprites/Bomberman/Back/Bman_B_f00.png", "sprites/Bomberman/Back/Bman_B_f07.png");
+  bombermanImg.front = loadAnimation("sprites/Bomberman/Front/Bman_F_f00.png", "sprites/Bomberman/Front/Bman_F_f07.png");
+  bombermanImg.left = loadAnimation("sprites/Bomberman/Left/Bman_L_f00.png", "sprites/Bomberman/Left/Bman_L_f07.png");
+  bombermanImg.right = loadAnimation("sprites/Bomberman/Right/Bman_R_f00.png", "sprites/Bomberman/Right/Bman_R_f07.png");
 
-  // Добавляем пакеты спрайтов
+  // Изображения для анимации врага
   enemyImg.back = loadAnimation("sprites/Creep/Back/Creep_B_f00.png", "sprites/Creep/Back/Creep_B_f05.png");
   enemyImg.front = loadAnimation("sprites/Creep/Front/Creep_F_f00.png", "sprites/Creep/Front/Creep_F_f05.png");
   enemyImg.left = loadAnimation("sprites/Creep/Left/Creep_L_f00.png", "sprites/Creep/Left/Creep_L_f05.png");
   enemyImg.right = loadAnimation("sprites/Creep/Right/Creep_R_f00.png", "sprites/Creep/Right/Creep_R_f05.png");
 }
-
+/*----------------------------------------------------------------------------*/
 
 
 function setup() {
   let canvas = createCanvas(680, 520);
   canvas.parent('game');
+  // w = width / cols;
+  w = 40;
 
   greenField = new Group();
   wall = new Group();
+  bricks = new Group();
   createScene();
 
-  // -------------- Бомбермен
-  bomberman = createSprite(width / 2, height / 2, w, w);
-  bombermanAddAnimation();
+  // Бомбермен. Создание. Анимация. Размер. Коллайдер. Движение.
+  bomberman = createSprite(w, w, w, w);
+  bomberman.addAnimation("back", bombermanImg.back);
+  bomberman.addAnimation("front", bombermanImg.front);
+  bomberman.addAnimation("left", bombermanImg.left);
+  bomberman.addAnimation("right", bombermanImg.right);
+  bomberman.scale = w / 100;
+  bomberman.setCollider("rectangle", 0, 8, w * 1.1, w * 2);
+  // bomberman.debug = true;
+  bomberman.walk = bombermanWalkFunction;
 
 
-  // ----------- Враг
-  enemy = createSprite(200, 200, w, w);
-  enemy.velocity.y = -1;
-  enemy.scale = w / 64;
-  enemy.maxSpeed = 1;
-  // enemies = new Group();
+  // Враг. Создание. Анимация. Размер.
+  // Чтобы поместить врагов в свободные от кирпичей ячейки - соберём координаты
+  // этих ячеек в массив
 
-  // Добавляем врагу анимацию с лейблами
-  enemy.addAnimation("back", enemyImg.back);
-  enemy.addAnimation("front", enemyImg.front);
-  enemy.addAnimation("left", enemyImg.left);
-  enemy.addAnimation("right", enemyImg.right);
+  let positionOnGrassWithoutBricks = [];
+  for (element of greenField) {
+    if (!element.coveredByBrick) {
+      positionOnGrassWithoutBricks.push(element.position);
+    }
+  }
+
+  enemies = new Group();
+  for (let i = 0; i < 10; i++) {
+    let freeRandomPosition = floor(random(positionOnGrassWithoutBricks.length));
+    let x = positionOnGrassWithoutBricks[freeRandomPosition].x;
+    let y = positionOnGrassWithoutBricks[freeRandomPosition].y;
+    let enemy = createSprite(x, y, w, w);
+
+    enemy.addAnimation("back", enemyImg.back);
+    enemy.addAnimation("front", enemyImg.front);
+    enemy.addAnimation("left", enemyImg.left);
+    enemy.addAnimation("right", enemyImg.right);
+    enemy.scale = w / 70;
+    enemy.maxSpeed = 1;
+    enemy.changeDirection = changeDirection;
+    enemy.setCollider("rectangle", 0, 0, wall[0].width, wall[0].height);
+
+    if (random(10) >= 5) {
+      enemy.velocity.x = random(10) >= 5 ? -1 : 1;
+    } else {
+      enemy.velocity.y = random(10) >= 5 ? -1 : 1;
+    }
+
+    enemies.add(enemy);
+  }
 
 
-
-  // Задаём порядок в котором будут отображаться спрайты
+  // Задаём слои в которых будут отображаться спрайты
   bomberman.depth = 2;
-  enemy.depth = 2;
+
+  for (element of enemies) {
+    element.depth = 2;
+  }
+
+  for (element of bricks) {
+    element.depth = 2;
+  }
 
   for (element of greenField) {
     element.depth = 1;
@@ -76,8 +133,6 @@ function setup() {
     element.depth = 1;
   }
 
-
-
 }
 
 
@@ -85,64 +140,64 @@ function setup() {
 function draw() {
   background(200);
 
-  bombermanController();
-
-  for (element of wall) {
-    // bomberman.collide(element);
-    enemy.collide(element, changeDirection);
-    // enemy.collide(element);
-  }
-
   bomberman.collide(wall);
-
-  if (frameCount % 300 === 0) {
-    let dx = random(width);
-    let dy = random(width);
-    // enemy.attractionPoint(2, dx, dy);
+  bomberman.collide(bricks);
+  bomberman.walk();
 
 
-    // if (random(10) > 5) {
-    //   enemy.velocity.x = -1;
-    // } else {
-    //   enemy.velocity.y = -1;
-    // }
+  for (enemy of enemies) {
+    enemy.collide(wall, changeDirection);
+    enemy.collide(bricks, changeDirection);
+    enemy.collide(enemies, changeDirection);
 
-    console.log(`dx = ${dx} | dy = ${dy}`);
+    if (enemy.velocity.x === 0 && enemy.velocity.y === 0) {
+      enemy.changeDirection();
+    }
+
   }
 
   drawSprites();
 }
 
 
-
-
+/*-----------------------------Создание игрового поля ------------------------*/
 function createScene() {
-  let rows = 13;
-  let columns = 17;
-  w = width / columns;
   let x = w / 2;
   let y = w / 2;
 
   for (let i = 0; i < rows; i++) {
-    for (let j = 0; j < columns; j++) {
-      let sp = createSprite(x, y, w, w);
+    for (let j = 0; j < cols; j++) {
 
-      /*----- Создание невзрываемых элементов поля с помощью камней -----*/
+      let element = createSprite(x, y, w, w);
+
       if ((i === 0 || i === rows - 1) ||
-        (j === 0 || j === columns - 1) ||
+        (j === 0 || j === cols - 1) ||
         (i % 2 === 0 && j % 2 === 0)) {
-        sp.addImage(stoneImg);
-        sp.scale = w / sp.width;
-        wall.add(sp);
+        element.addImage(stoneImg);
+        element.scale = w / element.width;
+        wall.add(element);
       } else {
-        sp.addImage(grassImg);
-        sp.scale = w / sp.width;
-        greenField.add(sp);
-      }
+        element.addImage(grassImg);
+        element.scale = w / element.width;
 
+        if (random(10) >= 8 && i !== 1 && i !== 2 && j !== 1) {
+          let elementB = createSprite(x, y, w, w);
+          elementB.addImage(brickImg);
+          elementB.scale = w / elementB.width;
+          elementB.mouseActive = true;
+          bricks.add(elementB);
+          element.coveredByBrick = true;
+        } else {
+          element.coveredByBrick = false;
+        }
+
+        greenField.add(element);
+
+      }
       x += w;
     }
     x = w / 2;
     y += w;
   }
 }
+/*----------------------------------------------------------------------------*/
