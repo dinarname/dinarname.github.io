@@ -2303,6 +2303,7 @@
 	        value: function run(win, doc) {
 	            var domain = location.hostname.indexOf('www.') === 0 ? location.hostname.replace('www.', '') : location.hostname;
 	            var platform_conf = (0, _hostsData.hostsData)(domain);
+	            debugger;
 	            var adPlayer = new _adplayer.AdPlayer();
 	            var adModule = new _admodule.AdModule(adPlayer);
 	            var adPanel = new _adpanel.AdPanel(adPlayer, platform_conf);
@@ -2438,6 +2439,7 @@
 	            var waitBeforePlayAd;
 	            function runAd(sUrl) {
 	                var d = platform_conf;
+	                debugger;
 	                var res = d && lastSrc != sUrl;
 
 	                if (res) {
