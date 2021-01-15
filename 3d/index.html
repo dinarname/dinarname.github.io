@@ -7,7 +7,13 @@
   <body>
     <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
     <script nomodule src="https://unpkg.com/@google/model-viewer/dist/model-viewer-legacy.js"></script>
-    <model-viewer src="gear_base.glb" alt="A 3D model of an astronaut" auto-rotate camera-controls></model-viewer>
+    <style>
+model-viewer {
+  width: 800px;
+  height: 800px;
+}
+</style>
+    <model-viewer src="gear_base-1.glb" alt="A 3D model of an astronaut" auto-rotate camera-controls></model-viewer>
 
   </body>
 </html>
